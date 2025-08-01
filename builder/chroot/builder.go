@@ -81,10 +81,9 @@ type Config struct {
 	// longer used and the following options become required:
 	// ami_virtualization_type, pre_mount_commands and root_volume_size.
 	FromScratch bool `mapstructure:"from_scratch" required:"false"`
-	// Optionally Skip Mounting the device. If true, the mount device step will
-	// not be performed.
-	// Skipping requires using the pre and post mount commands
-	// handle the mappings and mount as needed.
+	// Optionally Skip Mounting the device. If true, no mount steps
+	// will be performed.  A custom provisioner must be used to handle
+	// mounting the device.
 	SkipMountDevice bool `mapstructure:"skip_mount_device" required:"false"`
 	// Options to supply the mount command when mounting devices. Each option
 	// will be prefixed with -o and supplied to the mount command ran by
@@ -485,30 +484,30 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			PollingConfig: b.config.PollingConfig,
 		},
 		&StepEarlyUnflock{},
-		&chroot.StepPreMountCommands{
-			Commands: b.config.PreMountCommands,
-		},
 	)
 
 	if !b.config.SkipMountDevice {
 		steps = append(steps,
+			&chroot.StepPreMountCommands{
+				Commands: b.config.PreMountCommands,
+			},
 			&StepMountDevice{
 				MountOptions:   b.config.MountOptions,
 				MountPartition: b.config.MountPartition,
 				GeneratedData:  generatedData,
 			},
+			&chroot.StepPostMountCommands{
+				Commands: b.config.PostMountCommands,
+			},
+			&chroot.StepMountExtra{
+				ChrootMounts: b.config.ChrootMounts,
+			},
+			&chroot.StepCopyFiles{
+				Files: b.config.CopyFiles,
+			},
 		)
 	}
 	steps = append(steps,
-		&chroot.StepPostMountCommands{
-			Commands: b.config.PostMountCommands,
-		},
-		&chroot.StepMountExtra{
-			ChrootMounts: b.config.ChrootMounts,
-		},
-		&chroot.StepCopyFiles{
-			Files: b.config.CopyFiles,
-		},
 		&awscommon.StepSetGeneratedData{
 			GeneratedData: generatedData,
 		},
