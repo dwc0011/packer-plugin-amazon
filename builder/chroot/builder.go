@@ -82,8 +82,7 @@ type Config struct {
 	// ami_virtualization_type, pre_mount_commands and root_volume_size.
 	FromScratch bool `mapstructure:"from_scratch" required:"false"`
 	// Optionally Skip Mounting the device. If true, the mount device step will
-	// not be performed. Images with LVM-encapsulated boot partitions
-	// can not be mounted properly and result in an invalid filesystem type error
+	// not be performed.
 	// Skipping requires using the pre and post mount commands
 	// handle the mappings and mount as needed.
 	SkipMountDevice bool `mapstructure:"skip_mount_device" required:"false"`
