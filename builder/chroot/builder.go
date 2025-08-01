@@ -81,6 +81,12 @@ type Config struct {
 	// longer used and the following options become required:
 	// ami_virtualization_type, pre_mount_commands and root_volume_size.
 	FromScratch bool `mapstructure:"from_scratch" required:"false"`
+	// Optionally Skip Mounting the device. If true, the mount device step will
+	// not be performed. Images with LVM-encapsulated boot partitions
+	// can not be mounted properly and result in an invalid filesystem type error
+	// Skipping requires using the pre and post mount commands
+	// handle the mappings and mount as needed.
+	SkipMountDevice bool `mapstructure:"skip_mount_device" required:"false"`
 	// Options to supply the mount command when mounting devices. Each option
 	// will be prefixed with -o and supplied to the mount command ran by
 	// Packer. Because this command is ran in a shell, user discretion is
@@ -483,11 +489,18 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&chroot.StepPreMountCommands{
 			Commands: b.config.PreMountCommands,
 		},
-		&StepMountDevice{
-			MountOptions:   b.config.MountOptions,
-			MountPartition: b.config.MountPartition,
-			GeneratedData:  generatedData,
-		},
+	)
+
+	if !b.config.SkipMountDevice {
+		steps = append(steps,
+			&StepMountDevice{
+				MountOptions:   b.config.MountOptions,
+				MountPartition: b.config.MountPartition,
+				GeneratedData:  generatedData,
+			},
+		)
+	}
+	steps = append(steps,
 		&chroot.StepPostMountCommands{
 			Commands: b.config.PostMountCommands,
 		},
