@@ -325,7 +325,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 			errs = packersdk.MultiErrorAppend(
 				errs, errors.New("root_volume_size is required with from_scratch."))
 		}
-		if len(b.config.PreMountCommands) == 0 {
+		if !b.config.SkipMountDevice && len(b.config.PreMountCommands) == 0 {
 			errs = packersdk.MultiErrorAppend(
 				errs, errors.New("pre_mount_commands is required with from_scratch."))
 		}
