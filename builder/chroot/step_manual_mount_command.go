@@ -31,10 +31,13 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 	device := state.Get("device").(string)
 	ui := state.Get("ui").(packersdk.Ui)
 
+	ui.Say("Running manual mount commands...")
+
 	if config.NVMEDevicePath != "" {
 		// customizable device path for mounting NVME block devices on c5 and m5 HVM
 		device = config.NVMEDevicePath
 	}
+	ui.Say(fmt.Sprintf("Command is: %s", s.Command))
 	if len(s.Command) == 0 {
 		return multistep.ActionContinue
 	}
@@ -58,19 +61,25 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 		return multistep.ActionHalt
 	}
 
+	ui.Say(fmt.Sprintf("Mount Path After ABS is: %s", mountPath))
+
 	log.Printf("Mount path: %s", mountPath)
 	stderr := new(bytes.Buffer)
 
-	ui.Say("Running device mount commands...")
+	ui.Say("Running manual mount commands...")
 	cmd := common.ShellCommand(s.Command)
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
+		ui.Say("Error while mounting root device...")
+
 		err := fmt.Errorf(
 			"Error mounting root volume: %s\nStderr: %s", err, stderr.String())
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
 	}
+
+	ui.Say(fmt.Sprintf("Mount Path is: %s", mountPath))
 
 	// Set the mount path so we remember to unmount it later
 	s.mountPath = mountPath
