@@ -67,7 +67,7 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 	stderr := new(bytes.Buffer)
 
 	ui.Say("Running manual mount commands...")
-	cmd := common.ShellCommand(s.Command)
+	cmd := common.ShellCommand(fmt.Sprintf("%s %s", s.Command, mountPath))
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
 		ui.Say("Error while mounting root device...")
