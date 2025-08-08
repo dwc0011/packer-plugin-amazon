@@ -102,7 +102,7 @@ type Config struct {
 	// template where the .Device variable is replaced with the name of the
 	// device where the volume is attached.
 	MountPath string `mapstructure:"mount_path" required:"false"`
-	// As pre_mount_commands, but the commands are executed to manual mount the
+	// Manual Mount Command that is executed to manually mount the
 	// root device and before the post mount commands. The device and
 	// mount path are provided by `{{.Device}}` and `{{.MountPath}}`.
 	ManualMountCommand string `mapstructure:"manual_mount_command" required:"false"`
