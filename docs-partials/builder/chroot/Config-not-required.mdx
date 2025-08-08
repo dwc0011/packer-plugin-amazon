@@ -43,9 +43,9 @@
   longer used and the following options become required:
   ami_virtualization_type, pre_mount_commands and root_volume_size.
 
-- `skip_mount_device` (bool) - Optionally skip mounting the device.  Default false.  If true, 
-  the pre_mount_commands, mount device, post_mount_commands, mount extra and copy files steps 
-  are all skipped. A custom provisioner must be used to manually configure and mount the device.
+- `skip_mount_device` (bool) - Optionally Skip Mounting the device. If true, no mount steps
+  will be performed.  A custom provisioner must be used to handle
+  mounting the device.
 
 - `mount_options` ([]string) - Options to supply the mount command when mounting devices. Each option
   will be prefixed with -o and supplied to the mount command ran by
@@ -64,8 +64,8 @@
   template where the .Device variable is replaced with the name of the
   device where the volume is attached.
 
-- `manual_mound_command` (string) - As pre_mount_commands, but the commands are executed after mounting the
-  root device and before the extra mount and copy steps. The device and
+- `manual_mount_command` (string) - Manual Mount Command that is executed to manually mount the
+  root device and before the post mount commands. The device and
   mount path are provided by `{{.Device}}` and `{{.MountPath}}`.
 
 - `post_mount_commands` ([]string) - As pre_mount_commands, but the commands are executed after mounting the

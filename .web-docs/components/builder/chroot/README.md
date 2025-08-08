@@ -105,6 +105,10 @@ necessary for this build to succeed and can be found further down the page.
   longer used and the following options become required:
   ami_virtualization_type, pre_mount_commands and root_volume_size.
 
+- `skip_mount_device` (bool) - Optionally Skip Mounting the device. If true, no mount steps
+  will be performed.  A custom provisioner must be used to handle
+  mounting the device.
+
 - `mount_options` ([]string) - Options to supply the mount command when mounting devices. Each option
   will be prefixed with -o and supplied to the mount command ran by
   Packer. Because this command is ran in a shell, user discretion is
@@ -121,6 +125,10 @@ necessary for this build to succeed and can be found further down the page.
   `/mnt/packer-amazon-chroot-volumes/{{.Device}}`. This is a configuration
   template where the .Device variable is replaced with the name of the
   device where the volume is attached.
+
+- `manual_mount_command` (string) - Manual Mount Command that is executed to manually mount the
+  root device and before the post mount commands. The device and
+  mount path are provided by `{{.Device}}` and `{{.MountPath}}`.
 
 - `post_mount_commands` ([]string) - As pre_mount_commands, but the commands are executed after mounting the
   root device and before the extra mount and copy steps. The device and
