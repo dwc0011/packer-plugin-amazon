@@ -102,6 +102,10 @@ type Config struct {
 	// template where the .Device variable is replaced with the name of the
 	// device where the volume is attached.
 	MountPath string `mapstructure:"mount_path" required:"false"`
+	// As pre_mount_commands, but the commands are executed to manual mount the
+	// root device and before the post mount commands. The device and
+	// mount path are provided by `{{.Device}}` and `{{.MountPath}}`.
+	ManualMountCommand string `mapstructure:"manual_mount_command" required:"false"`
 	// As pre_mount_commands, but the commands are executed after mounting the
 	// root device and before the extra mount and copy steps. The device and
 	// mount path are provided by `{{.Device}}` and `{{.MountPath}}`.
@@ -249,6 +253,7 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 				"root_volume_tag",
 				"command_wrapper",
 				"post_mount_commands",
+				"manual_mount_command",
 				"pre_mount_commands",
 				"mount_path",
 			},
@@ -484,30 +489,38 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			PollingConfig: b.config.PollingConfig,
 		},
 		&StepEarlyUnflock{},
+		&chroot.StepPreMountCommands{
+			Commands: b.config.PreMountCommands,
+		},
 	)
 
-	if !b.config.SkipMountDevice {
+	if b.config.SkipMountDevice {
 		steps = append(steps,
-			&chroot.StepPreMountCommands{
-				Commands: b.config.PreMountCommands,
+			&StepManualMountCommand{
+				Command:       b.config.ManualMountCommand,
+				GeneratedData: generatedData,
 			},
+		)
+	} else {
+		steps = append(steps,
 			&StepMountDevice{
 				MountOptions:   b.config.MountOptions,
 				MountPartition: b.config.MountPartition,
 				GeneratedData:  generatedData,
 			},
-			&chroot.StepPostMountCommands{
-				Commands: b.config.PostMountCommands,
-			},
-			&chroot.StepMountExtra{
-				ChrootMounts: b.config.ChrootMounts,
-			},
-			&chroot.StepCopyFiles{
-				Files: b.config.CopyFiles,
-			},
 		)
 	}
+
 	steps = append(steps,
+		&chroot.StepPostMountCommands{
+			Commands: b.config.PostMountCommands,
+		},
+		&chroot.StepMountExtra{
+			ChrootMounts: b.config.ChrootMounts,
+		},
+		&chroot.StepCopyFiles{
+			Files: b.config.CopyFiles,
+		},
 		&awscommon.StepSetGeneratedData{
 			GeneratedData: generatedData,
 		},

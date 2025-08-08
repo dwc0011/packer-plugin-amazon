@@ -75,6 +75,7 @@ type FlatConfig struct {
 	MountOptions                   []string                                    `mapstructure:"mount_options" required:"false" cty:"mount_options" hcl:"mount_options"`
 	MountPartition                 *string                                     `mapstructure:"mount_partition" required:"false" cty:"mount_partition" hcl:"mount_partition"`
 	MountPath                      *string                                     `mapstructure:"mount_path" required:"false" cty:"mount_path" hcl:"mount_path"`
+	ManualMountCommand             string                                      `mapstructure:"manual_mount_command" required:"false" cty:"manual_mount_command" hcl:"manual_mount_command"`
 	PostMountCommands              []string                                    `mapstructure:"post_mount_commands" required:"false" cty:"post_mount_commands" hcl:"post_mount_commands"`
 	PreMountCommands               []string                                    `mapstructure:"pre_mount_commands" required:"false" cty:"pre_mount_commands" hcl:"pre_mount_commands"`
 	RootDeviceName                 *string                                     `mapstructure:"root_device_name" required:"false" cty:"root_device_name" hcl:"root_device_name"`
