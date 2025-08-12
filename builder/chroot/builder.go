@@ -489,9 +489,6 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			PollingConfig: b.config.PollingConfig,
 		},
 		&StepEarlyUnflock{},
-		&chroot.StepPreMountCommands{
-			Commands: b.config.PreMountCommands,
-		},
 	)
 
 	if b.config.SkipMountDevice {
@@ -503,6 +500,9 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		)
 	} else {
 		steps = append(steps,
+			&chroot.StepPreMountCommands{
+				Commands: b.config.PreMountCommands,
+			},
 			&StepMountDevice{
 				MountOptions:   b.config.MountOptions,
 				MountPartition: b.config.MountPartition,
