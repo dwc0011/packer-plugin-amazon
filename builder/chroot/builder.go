@@ -508,16 +508,16 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 				MountPartition: b.config.MountPartition,
 				GeneratedData:  generatedData,
 			},
+			&chroot.StepPostMountCommands{
+				Commands: b.config.PostMountCommands,
+			},
+			&chroot.StepMountExtra{
+				ChrootMounts: b.config.ChrootMounts,
+			},
 		)
 	}
 
 	steps = append(steps,
-		&chroot.StepPostMountCommands{
-			Commands: b.config.PostMountCommands,
-		},
-		&chroot.StepMountExtra{
-			ChrootMounts: b.config.ChrootMounts,
-		},
 		&chroot.StepCopyFiles{
 			Files: b.config.CopyFiles,
 		},
