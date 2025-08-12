@@ -1,13 +1,11 @@
 package chroot
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"path/filepath"
 
-	"github.com/hashicorp/packer-plugin-sdk/common"
 	"github.com/hashicorp/packer-plugin-sdk/multistep"
 	packersdk "github.com/hashicorp/packer-plugin-sdk/packer"
 	"github.com/hashicorp/packer-plugin-sdk/packerbuilderdata"
@@ -64,20 +62,20 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 	ui.Say(fmt.Sprintf("Mount Path After ABS is: %s", mountPath))
 
 	log.Printf("Mount path: %s", mountPath)
-	stderr := new(bytes.Buffer)
+	// stderr := new(bytes.Buffer)
 
-	ui.Say("Running manual mount commands...")
-	cmd := common.ShellCommand(fmt.Sprintf("%s %s", s.Command, mountPath))
-	cmd.Stderr = stderr
-	if err := cmd.Run(); err != nil {
-		ui.Say("Error while mounting root device...")
+	ui.Say("Skip Running manual mount commands...")
+	// cmd := common.ShellCommand(fmt.Sprintf("%s %s", s.Command, mountPath))
+	// cmd.Stderr = stderr
+	// if err := cmd.Run(); err != nil {
+	// 	ui.Say("Error while mounting root device...")
 
-		err := fmt.Errorf(
-			"Error mounting root volume: %s\nStderr: %s", err, stderr.String())
-		state.Put("error", err)
-		ui.Error(err.Error())
-		return multistep.ActionHalt
-	}
+	// 	err := fmt.Errorf(
+	// 		"Error mounting root volume: %s\nStderr: %s", err, stderr.String())
+	// 	state.Put("error", err)
+	// 	ui.Error(err.Error())
+	// 	return multistep.ActionHalt
+	// }
 
 	ui.Say(fmt.Sprintf("Mount Path is: %s", mountPath))
 
@@ -90,32 +88,32 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 	return multistep.ActionContinue
 }
 
-func (s *StepManualMountCommand) Cleanup(state multistep.StateBag) {
-	ui := state.Get("ui").(packersdk.Ui)
-	if err := s.CleanupFunc(state); err != nil {
-		ui.Error(err.Error())
-	}
-}
+// func (s *StepManualMountCommand) Cleanup(state multistep.StateBag) {
+// 	ui := state.Get("ui").(packersdk.Ui)
+// 	if err := s.CleanupFunc(state); err != nil {
+// 		ui.Error(err.Error())
+// 	}
+// }
 
-func (s *StepManualMountCommand) CleanupFunc(state multistep.StateBag) error {
-	if s.mountPath == "" {
-		return nil
-	}
+// func (s *StepManualMountCommand) CleanupFunc(state multistep.StateBag) error {
+// 	if s.mountPath == "" {
+// 		return nil
+// 	}
 
-	ui := state.Get("ui").(packersdk.Ui)
-	wrappedCommand := state.Get("wrappedCommand").(common.CommandWrapper)
+// 	ui := state.Get("ui").(packersdk.Ui)
+// 	wrappedCommand := state.Get("wrappedCommand").(common.CommandWrapper)
 
-	ui.Say("Unmounting the root device...")
-	unmountCommand, err := wrappedCommand(fmt.Sprintf("umount %s", s.mountPath))
-	if err != nil {
-		return fmt.Errorf("Error creating unmount command: %s", err)
-	}
+// 	ui.Say("Unmounting the root device...")
+// 	unmountCommand, err := wrappedCommand(fmt.Sprintf("umount %s", s.mountPath))
+// 	if err != nil {
+// 		return fmt.Errorf("Error creating unmount command: %s", err)
+// 	}
 
-	cmd := common.ShellCommand(unmountCommand)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("Error unmounting root device: %s", err)
-	}
+// 	cmd := common.ShellCommand(unmountCommand)
+// 	if err := cmd.Run(); err != nil {
+// 		return fmt.Errorf("Error unmounting root device: %s", err)
+// 	}
 
-	s.mountPath = ""
-	return nil
-}
+// 	s.mountPath = ""
+// 	return nil
+// }
