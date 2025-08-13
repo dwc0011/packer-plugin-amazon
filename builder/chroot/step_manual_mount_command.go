@@ -66,7 +66,7 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 	log.Printf("Mount path: %s", mountPath)
 	stderr := new(bytes.Buffer)
 
-	ui.Say("Skip Running manual mount commands...")
+	ui.Say("Running manual mount commands...")
 	cmd := common.ShellCommand(fmt.Sprintf("%s %s", s.Command, mountPath))
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {

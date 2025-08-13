@@ -511,13 +511,13 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 			&chroot.StepPostMountCommands{
 				Commands: b.config.PostMountCommands,
 			},
-			&chroot.StepMountExtra{
-				ChrootMounts: b.config.ChrootMounts,
-			},
 		)
 	}
 
 	steps = append(steps,
+		&chroot.StepMountExtra{
+			ChrootMounts: b.config.ChrootMounts,
+		},
 		&chroot.StepCopyFiles{
 			Files: b.config.CopyFiles,
 		},
