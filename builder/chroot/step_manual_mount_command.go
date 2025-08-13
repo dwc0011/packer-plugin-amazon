@@ -103,18 +103,8 @@ func (s *StepManualMountCommand) CleanupFunc(state multistep.StateBag) error {
 	}
 
 	ui := state.Get("ui").(packersdk.Ui)
-	wrappedCommand := state.Get("wrappedCommand").(common.CommandWrapper)
 
-	ui.Say("Unmounting the root device...")
-	unmountCommand, err := wrappedCommand(fmt.Sprintf("umount %s", s.mountPath))
-	if err != nil {
-		return fmt.Errorf("Error creating unmount command: %s", err)
-	}
-
-	cmd := common.ShellCommand(unmountCommand)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("Error unmounting root device: %s", err)
-	}
+	ui.Say("Skipping UnMount Root Mount, it must be manually unmounted...")
 
 	s.mountPath = ""
 	return nil
