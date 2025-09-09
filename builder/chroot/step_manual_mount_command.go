@@ -66,20 +66,26 @@ func (s *StepManualMountCommand) Run(ctx context.Context, state multistep.StateB
 	log.Printf("Mount path: %s", mountPath)
 	stderr := new(bytes.Buffer)
 
+	wrappedCommand := state.Get("wrappedCommand").(common.CommandWrapper)
+
 	ui.Say("Running manual mount commands...")
-	cmd := common.ShellCommand(fmt.Sprintf("%s %s", s.Command, mountPath))
+	mountCommand, err := wrappedCommand(fmt.Sprintf("%s %s", s.Command, mountPath))
+	if err != nil {
+		err := fmt.Errorf("Error creating mount command: %s", err)
+		state.Put("error", err)
+		ui.Error(err.Error())
+		return multistep.ActionHalt
+	}
+
+	cmd := common.ShellCommand(mountCommand)
 	cmd.Stderr = stderr
 	if err := cmd.Run(); err != nil {
-		ui.Say("Error while mounting root device...")
-
 		err := fmt.Errorf(
 			"Error mounting root volume: %s\nStderr: %s", err, stderr.String())
 		state.Put("error", err)
 		ui.Error(err.Error())
 		return multistep.ActionHalt
 	}
-
-	ui.Say(fmt.Sprintf("Mount Path is: %s", mountPath))
 
 	// Set the mount path so we remember to unmount it later
 	s.mountPath = mountPath

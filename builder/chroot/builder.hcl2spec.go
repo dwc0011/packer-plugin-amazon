@@ -71,7 +71,6 @@ type FlatConfig struct {
 	DevicePath                     *string                                     `mapstructure:"device_path" required:"false" cty:"device_path" hcl:"device_path"`
 	NVMEDevicePath                 *string                                     `mapstructure:"nvme_device_path" required:"false" cty:"nvme_device_path" hcl:"nvme_device_path"`
 	FromScratch                    *bool                                       `mapstructure:"from_scratch" required:"false" cty:"from_scratch" hcl:"from_scratch"`
-	SkipMountDevice                *bool                                       `mapstructure:"skip_mount_device" required:"false" cty:"skip_mount_device" hcl:"skip_mount_device"`
 	MountOptions                   []string                                    `mapstructure:"mount_options" required:"false" cty:"mount_options" hcl:"mount_options"`
 	MountPartition                 *string                                     `mapstructure:"mount_partition" required:"false" cty:"mount_partition" hcl:"mount_partition"`
 	MountPath                      *string                                     `mapstructure:"mount_path" required:"false" cty:"mount_path" hcl:"mount_path"`
@@ -164,7 +163,6 @@ func (*FlatConfig) HCL2Spec() map[string]hcldec.Spec {
 		"device_path":                    &hcldec.AttrSpec{Name: "device_path", Type: cty.String, Required: false},
 		"nvme_device_path":               &hcldec.AttrSpec{Name: "nvme_device_path", Type: cty.String, Required: false},
 		"from_scratch":                   &hcldec.AttrSpec{Name: "from_scratch", Type: cty.Bool, Required: false},
-		"skip_mount_device":              &hcldec.AttrSpec{Name: "skip_mount_device", Type: cty.Bool, Required: false},
 		"mount_options":                  &hcldec.AttrSpec{Name: "mount_options", Type: cty.List(cty.String), Required: false},
 		"mount_partition":                &hcldec.AttrSpec{Name: "mount_partition", Type: cty.String, Required: false},
 		"mount_path":                     &hcldec.AttrSpec{Name: "mount_path", Type: cty.String, Required: false},

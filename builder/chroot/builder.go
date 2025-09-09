@@ -81,10 +81,6 @@ type Config struct {
 	// longer used and the following options become required:
 	// ami_virtualization_type, pre_mount_commands and root_volume_size.
 	FromScratch bool `mapstructure:"from_scratch" required:"false"`
-	// Optionally Skip Mounting the device. If true, no mount steps
-	// will be performed.  A custom provisioner must be used to handle
-	// mounting the device.
-	SkipMountDevice bool `mapstructure:"skip_mount_device" required:"false"`
 	// Options to supply the mount command when mounting devices. Each option
 	// will be prefixed with -o and supplied to the mount command ran by
 	// Packer. Because this command is ran in a shell, user discretion is
@@ -103,8 +99,8 @@ type Config struct {
 	// device where the volume is attached.
 	MountPath string `mapstructure:"mount_path" required:"false"`
 	// Manual Mount Command that is executed to manually mount the
-	// root device and before the post mount commands. The device and
-	// mount path are provided by `{{.Device}}` and `{{.MountPath}}`.
+	// root device, partition, and unmount. All other mount steps are skipped.
+	// The device andmount path are provided by `{{.Device}}` and `{{.MountPath}}`.
 	ManualMountCommand string `mapstructure:"manual_mount_command" required:"false"`
 	// As pre_mount_commands, but the commands are executed after mounting the
 	// root device and before the extra mount and copy steps. The device and
@@ -330,9 +326,9 @@ func (b *Builder) Prepare(raws ...interface{}) ([]string, []string, error) {
 			errs = packersdk.MultiErrorAppend(
 				errs, errors.New("root_volume_size is required with from_scratch."))
 		}
-		if !b.config.SkipMountDevice && len(b.config.PreMountCommands) == 0 {
+		if b.config.ManualMountCommand == "" && len(b.config.PreMountCommands) == 0 {
 			errs = packersdk.MultiErrorAppend(
-				errs, errors.New("pre_mount_commands is required with from_scratch."))
+				errs, errors.New("pre_mount_commands or manual_mount_command is required with from_scratch."))
 		}
 		if b.config.AMIVirtType == "" {
 			errs = packersdk.MultiErrorAppend(
@@ -491,7 +487,7 @@ func (b *Builder) Run(ctx context.Context, ui packersdk.Ui, hook packersdk.Hook)
 		&StepEarlyUnflock{},
 	)
 
-	if b.config.SkipMountDevice {
+	if b.config.ManualMountCommand != "" {
 		steps = append(steps,
 			&StepManualMountCommand{
 				Command:       b.config.ManualMountCommand,
